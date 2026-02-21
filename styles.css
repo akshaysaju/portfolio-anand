@@ -96,11 +96,28 @@ html {
 body {
     font-family: var(--font-primary);
     color: var(--color-text-primary);
-    background-color: var(--color-bg-primary);
+    background-color: #000;
     line-height: 1.6;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+section {
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===================================
+   BACKGROUND WRAPPER (passthrough)
+   =================================== */
+
+.bg-sections-wrapper {
+    position: relative;
+    margin: 0;
+    padding: 0;
 }
 
 img {
@@ -307,37 +324,21 @@ button {
    =================================== */
 
 .hero {
-    min-height: 100vh;
+    min-height: 56.25vw;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    overflow: hidden;
-    background: #1a0533;
+    margin: 0;
+    padding: 0;
 }
 
-/* Background image layer */
+/* hero-bg is removed — images handled by .bg-image-strip */
 .hero-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('assets/hero-bg.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: 0;
+    display: none;
 }
 
-/* Subtle dark overlay for text readability */
-.hero-bg::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(10, 0, 30, 0.15);
-    z-index: 1;
-}
+
 
 .hero-content {
     text-align: center;
@@ -534,7 +535,18 @@ button {
 
 .about {
     padding: var(--spacing-3xl) 0;
-    background: var(--color-bg-primary);
+    margin: 0;
+    position: relative;
+    min-height: 56.25vw;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url('assets/about.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.about .container {
+    position: relative;
+    z-index: 1;
 }
 
 .about-grid {
@@ -545,10 +557,11 @@ button {
 }
 
 .about-text {
-    font-size: 1.125rem;
-    color: var(--color-text-secondary);
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.88);
     margin-bottom: var(--spacing-lg);
-    line-height: 1.8;
+    line-height: 1.85;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 .skills {
@@ -556,9 +569,13 @@ button {
 }
 
 .skills-title {
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: 1.1rem;
+    font-weight: 700;
     margin-bottom: var(--spacing-md);
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.75;
 }
 
 .skills-grid {
@@ -568,18 +585,23 @@ button {
 }
 
 .skill-tag {
-    padding: var(--spacing-xs) var(--spacing-md);
-    background: var(--color-bg-tertiary);
-    border-radius: var(--radius-sm);
-    font-size: 0.875rem;
+    padding: 6px 18px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 50px;
+    font-size: 0.825rem;
     font-weight: 500;
-    color: var(--color-text-primary);
+    color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     transition: all var(--transition-base);
+    cursor: default;
 }
 
 .skill-tag:hover {
-    background: var(--gradient-primary);
-    color: white;
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #ffffff;
     transform: translateY(-2px);
 }
 
@@ -588,33 +610,83 @@ button {
     gap: var(--spacing-lg);
 }
 
+.about-image-wrapper {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.about-image-wrapper:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 30px 80px rgba(120, 40, 200, 0.3);
+}
+
+.about-photo {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+/* Work section decorative image */
+.work-section-img {
+    margin: var(--spacing-xl) auto 0;
+    max-width: 700px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+}
+
+.work-bg-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    max-height: 280px;
+    object-position: center;
+}
+
 .stat-card {
     padding: var(--spacing-xl);
-    background: var(--color-bg-secondary);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-top: 1px solid rgba(255, 255, 255, 0.45);
     border-radius: var(--radius-lg);
     text-align: center;
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
     transition: all var(--transition-base);
 }
 
 .stat-card:hover {
     transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
+    background: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .stat-number {
     font-family: var(--font-display);
     font-size: 3rem;
     font-weight: 800;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(180, 100, 255, 0.5);
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+    background-clip: unset;
 }
 
 .stat-label {
-    font-size: 1rem;
-    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
     margin-top: var(--spacing-xs);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 /* ===================================
@@ -623,7 +695,18 @@ button {
 
 .portfolio {
     padding: var(--spacing-3xl) 0;
-    background: var(--color-bg-secondary);
+    margin: 0;
+    position: relative;
+    min-height: 56.25vw;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url('assets/work.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.portfolio .container {
+    position: relative;
+    z-index: 1;
 }
 
 .portfolio-header {
@@ -1609,12 +1692,129 @@ button {
 }
 
 /* ========== HERO BACKGROUND ========== */
+.hero {
+    background-image: url('assets/hero-bg.jpg') !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+}
+
 [data-theme="dark"] .hero {
-    background: linear-gradient(to bottom, #0a0e27 0%, #16213e 50%, #1a1a2e 100%) !important;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('assets/hero-bg.jpg') !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
 }
 
 [data-theme="light"] .hero {
-    background: linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 50%, #F0E68C 100%) !important;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url('assets/hero-bg.jpg') !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+}
+
+/* ========== ABOUT / PORTFOLIO BACKGROUNDS - DARK MODE ========== */
+[data-theme="dark"] .about {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('assets/about.png');
+    background-size: cover;
+    background-position: center center;
+}
+
+[data-theme="dark"] .portfolio {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('assets/work.png');
+    background-size: cover;
+    background-position: center center;
+}
+
+/* ========== ABOUT SECTION — READABILITY OVERRIDES ========== */
+
+/* Creative client name highlight */
+.client-name {
+    font-weight: 700;
+    background: linear-gradient(135deg, #c084fc, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    display: inline-block;
+    padding: 0 2px;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.client-name::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    background: linear-gradient(135deg, #c084fc, #818cf8);
+    border-radius: 1px;
+    transform: scaleX(0.4);
+    transform-origin: left;
+    opacity: 0.6;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.client-name:hover::after {
+    transform: scaleX(1);
+    opacity: 1;
+}
+
+
+/* White title that's actually visible on the photo bg */
+.about .section-title {
+    color: #ffffff;
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: #ffffff;
+    background-clip: unset;
+    text-shadow: 0 2px 20px rgba(180, 80, 255, 0.5), 0 1px 6px rgba(0, 0, 0, 0.6);
+    position: relative;
+    display: inline-block;
+    padding-bottom: 12px;
+}
+
+/* Purple accent underline beneath title */
+.about .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #a855f7, #6366f1);
+    border-radius: 2px;
+}
+
+/* Glass card wrapping all About content */
+.about .container {
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(32px) saturate(160%);
+    -webkit-backdrop-filter: blur(32px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-top: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 24px;
+    padding: 48px 56px;
+    box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* ========== PORTFOLIO SECTION — READABILITY OVERRIDES ========== */
+
+.portfolio .section-title {
+    color: #ffffff;
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: #ffffff;
+    background-clip: unset;
+    text-shadow: 0 2px 20px rgba(100, 120, 255, 0.5), 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+
+.portfolio .section-subtitle {
+    color: rgba(255, 255, 255, 0.75);
 }
 
 /* Responsive Adjustments */
@@ -1646,4 +1846,49 @@ button {
     .cactus-2 {
         height: 35px;
     }
+}
+
+/* ========== BRAND-SPECIFIC CLIENT COLORS ========== */
+.client-swiggy {
+    background: linear-gradient(135deg, #F6C90E, #FBBF24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.client-swiggy::after {
+    background: linear-gradient(135deg, #F6C90E, #FBBF24);
+}
+
+.client-melam {
+    background: linear-gradient(135deg, #F6C90E, #FBBF24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.client-melam::after {
+    background: linear-gradient(135deg, #F6C90E, #FBBF24);
+}
+
+.client-marriott {
+    background: linear-gradient(135deg, #F6C90E, #FBBF24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.client-marriott::after {
+    background: linear-gradient(135deg, #F6C90E, #FBBF24);
+}
+
+.client-hachiko {
+    background: linear-gradient(135deg, #F6C90E, #FBBF24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.client-hachiko::after {
+    background: linear-gradient(135deg, #F6C90E, #FBBF24);
 }

@@ -26,7 +26,32 @@ window.addEventListener('scroll', () => {
     }
 
     lastScroll = currentScroll;
+
+    // Update active nav link based on scroll position
+    updateActiveNavLink();
 });
+
+function updateActiveNavLink() {
+    const sections = ['home', 'about', 'work', 'contact'];
+    const navLinks = document.querySelectorAll('.nav-link');
+    const scrollPos = window.scrollY + window.innerHeight / 3;
+
+    let currentSection = 'home';
+    sections.forEach(id => {
+        const section = document.getElementById(id);
+        if (section && section.offsetTop <= scrollPos) {
+            currentSection = id;
+        }
+    });
+
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        const href = link.getAttribute('href');
+        if (href === '#' + currentSection) {
+            link.classList.add('active');
+        }
+    });
+}
 
 // ===================================
 // SMOOTH SCROLLING FOR NAVIGATION LINKS
@@ -59,20 +84,44 @@ function initializeScrollNavigation() {
     const scrollRightBtn = document.getElementById('scrollRight');
 
     if (portfolioScroll && scrollLeftBtn && scrollRightBtn) {
-        const scrollAmount = 450;
+
+        function getVisibleItems() {
+            return Array.from(portfolioScroll.querySelectorAll('.portfolio-item:not(.hidden)'));
+        }
+
+        function getCurrentIndex(items) {
+            const containerCenter = portfolioScroll.scrollLeft + portfolioScroll.clientWidth / 2;
+            let closestIdx = 0;
+            let closestDist = Infinity;
+            items.forEach((item, i) => {
+                const itemCenter = item.offsetLeft + item.offsetWidth / 2;
+                const dist = Math.abs(itemCenter - containerCenter);
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closestIdx = i;
+                }
+            });
+            return closestIdx;
+        }
 
         scrollLeftBtn.addEventListener('click', () => {
-            portfolioScroll.scrollBy({
-                left: -scrollAmount,
-                behavior: 'smooth'
-            });
+            const items = getVisibleItems();
+            if (!items.length) return;
+            const current = getCurrentIndex(items);
+            const target = items[Math.max(0, current - 1)];
+            const targetCenter = target.offsetLeft + target.offsetWidth / 2;
+            const scrollTo = targetCenter - portfolioScroll.clientWidth / 2;
+            portfolioScroll.scrollTo({ left: scrollTo, behavior: 'smooth' });
         });
 
         scrollRightBtn.addEventListener('click', () => {
-            portfolioScroll.scrollBy({
-                left: scrollAmount,
-                behavior: 'smooth'
-            });
+            const items = getVisibleItems();
+            if (!items.length) return;
+            const current = getCurrentIndex(items);
+            const target = items[Math.min(items.length - 1, current + 1)];
+            const targetCenter = target.offsetLeft + target.offsetWidth / 2;
+            const scrollTo = targetCenter - portfolioScroll.clientWidth / 2;
+            portfolioScroll.scrollTo({ left: scrollTo, behavior: 'smooth' });
         });
 
         function updateArrows() {
@@ -99,7 +148,7 @@ window.addEventListener('portfolioLoaded', initializeScrollNavigation);
 // PORTFOLIO FILTER FUNCTIONALITY
 // ===================================
 
-`function initializeFilters() {
+function initializeFilters() {
     console.log('🔧 initializeFilters() called');
 
     const filterButtons = document.querySelectorAll('.filter-btn');
@@ -120,7 +169,7 @@ window.addEventListener('portfolioLoaded', initializeScrollNavigation);
     }
 
     filterButtons.forEach((button, index) => {
-        console.log(`✅ Attaching click listener to button ${ index }: `, button.getAttribute('data-filter'));
+        console.log(`✅ Attaching click listener to button ${index}: `, button.getAttribute('data-filter'));
 
         button.addEventListener('click', function () {
             console.log('🖱️ Filter button clicked:', this.getAttribute('data-filter'));
@@ -157,7 +206,7 @@ window.addEventListener('portfolioLoaded', initializeScrollNavigation);
                 }
             });
 
-            console.log(`📊 Filtered: ${ visibleCount } visible, ${ hiddenCount } hidden`);
+            console.log(`📊 Filtered: ${visibleCount} visible, ${hiddenCount} hidden`);
 
             // Reset scroll position
             if (portfolioScroll) {
@@ -175,7 +224,6 @@ window.addEventListener('portfolioLoaded', function () {
     console.log('🎉 portfolioLoaded event received!');
     initializeFilters();
 });
-`
 // Also initialize filters on DOM ready as fallback
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🌐 DOM loaded, waiting for portfolio items...');
@@ -206,27 +254,36 @@ function initializeLightbox() {
     const lightboxClose = document.getElementById('lightboxClose');
     const lightboxPrev = document.getElementById('lightboxPrev');
     const lightboxNext = document.getElementById('lightboxNext');
-    const portfolioItems = document.querySelectorAll('.portfolio-item');
+    const allPortfolioItems = document.querySelectorAll('.portfolio-item');
 
-    if (!lightbox || portfolioItems.length === 0) {
+    if (!lightbox || allPortfolioItems.length === 0) {
         console.error('❌ Lightbox elements not found or no portfolio items');
         return;
     }
 
-    let currentIndex = 0;
+    let currentIndex = 0; // index within VISIBLE items
 
-    console.log('✅ Lightbox initialized with', portfolioItems.length, 'items');
+    function getVisibleItems() {
+        return Array.from(allPortfolioItems).filter(item => !item.classList.contains('hidden'));
+    }
+
+    console.log('✅ Lightbox initialized with', allPortfolioItems.length, 'items');
 
     // Open lightbox when clicking on portfolio items
-    portfolioItems.forEach((item, index) => {
+    allPortfolioItems.forEach((item) => {
         item.addEventListener('click', () => {
-            currentIndex = index;
-            openLightbox();
+            const visible = getVisibleItems();
+            currentIndex = visible.indexOf(item);
+            if (currentIndex === -1) return;
+            openLightbox(visible);
         });
     });
 
-    function openLightbox() {
-        const item = portfolioItems[currentIndex];
+    function openLightbox(visible) {
+        visible = visible || getVisibleItems();
+        const item = visible[currentIndex];
+        if (!item) return;
+
         const img = item.querySelector('img');
         const title = item.querySelector('.portfolio-title').textContent;
         const category = item.querySelector('.portfolio-category').textContent;
@@ -235,6 +292,10 @@ function initializeLightbox() {
         lightboxImage.alt = img.alt;
         lightboxTitle.textContent = title;
         lightboxCategory.textContent = category;
+
+        // Show/hide nav arrows based on position
+        lightboxPrev.style.visibility = currentIndex <= 0 ? 'hidden' : 'visible';
+        lightboxNext.style.visibility = currentIndex >= visible.length - 1 ? 'hidden' : 'visible';
 
         lightbox.classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -248,13 +309,19 @@ function initializeLightbox() {
     }
 
     function showNext() {
-        currentIndex = (currentIndex + 1) % portfolioItems.length;
-        openLightbox();
+        const visible = getVisibleItems();
+        if (currentIndex < visible.length - 1) {
+            currentIndex++;
+            openLightbox(visible);
+        }
     }
 
     function showPrev() {
-        currentIndex = (currentIndex - 1 + portfolioItems.length) % portfolioItems.length;
-        openLightbox();
+        const visible = getVisibleItems();
+        if (currentIndex > 0) {
+            currentIndex--;
+            openLightbox(visible);
+        }
     }
 
     // Event listeners
